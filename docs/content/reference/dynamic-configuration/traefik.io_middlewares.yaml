@@ -615,6 +615,45 @@ spec:
                       type: string
                     type: array
                 type: object
+              oidcAuth:
+                description: OidcAuth holds the oidc auth middleware configuration.
+                  This middleware restricts access to your services to known authenticated
+                  users.
+                properties:
+                  acl:
+                    description: ACL contains acl rules that can be forced in login.
+                    properties:
+                      allow:
+                        items:
+                          type: string
+                        type: array
+                      deny:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  client_id:
+                    description: ClientID is the oidc application client id.
+                    type: string
+                  client_secret:
+                    description: ClientSecret is the oidc application client secret.
+                    type: string
+                  forward_headers:
+                    additionalProperties:
+                      type: string
+                    description: ForwardHeaders passes user information as headers
+                      to upstream.
+                    type: object
+                  issuer:
+                    description: Issuer is the oidc issuer.
+                    type: string
+                  whitelist_ips:
+                    description: WhitelistIPs contains ip addresses that can by pass
+                      the forced login.
+                    items:
+                      type: string
+                    type: array
+                type: object
               passTLSClientCert:
                 description: 'PassTLSClientCert holds the pass TLS client cert middleware
                   configuration. This middleware adds the selected data from the passed

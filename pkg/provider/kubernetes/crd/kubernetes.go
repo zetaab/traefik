@@ -239,6 +239,8 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 			continue
 		}
 
+		oidcAuth := createOidcAuthMiddleware(middleware.Spec.OidcAuth)
+
 		forwardAuth, err := createForwardAuthMiddleware(client, middleware.Namespace, middleware.Spec.ForwardAuth)
 		if err != nil {
 			logger.Error().Err(err).Msg("Error while reading forward auth middleware")
@@ -296,6 +298,7 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 			RedirectScheme:    middleware.Spec.RedirectScheme,
 			BasicAuth:         basicAuth,
 			DigestAuth:        digestAuth,
+			OidcAuth:          oidcAuth,
 			ForwardAuth:       forwardAuth,
 			InFlightReq:       middleware.Spec.InFlightReq,
 			Buffering:         middleware.Spec.Buffering,
@@ -848,6 +851,24 @@ func createBasicAuthMiddleware(client Client, namespace string, basicAuth *traef
 		RemoveHeader: basicAuth.RemoveHeader,
 		HeaderField:  basicAuth.HeaderField,
 	}, nil
+}
+
+func createOidcAuthMiddleware(oidcAuth *traefikv1alpha1.OidcAuth) *dynamic.OidcAuth {
+	if oidcAuth == nil {
+		return nil
+	}
+
+	return &dynamic.OidcAuth{
+		Issuer:         oidcAuth.Issuer,
+		ClientID:       oidcAuth.ClientID,
+		ClientSecret:   oidcAuth.ClientSecret,
+		WhitelistIPs:   oidcAuth.WhitelistIPs,
+		ForwardHeaders: oidcAuth.ForwardHeaders,
+		ACL: dynamic.ACL{
+			Allow: oidcAuth.ACL.Allow,
+			Deny:  oidcAuth.ACL.Deny,
+		},
+	}
 }
 
 func createDigestAuthMiddleware(client Client, namespace string, digestAuth *traefikv1alpha1.DigestAuth) (*dynamic.DigestAuth, error) {

@@ -40,6 +40,7 @@ type MiddlewareSpec struct {
 	RedirectScheme    *dynamic.RedirectScheme    `json:"redirectScheme,omitempty"`
 	BasicAuth         *BasicAuth                 `json:"basicAuth,omitempty"`
 	DigestAuth        *DigestAuth                `json:"digestAuth,omitempty"`
+	OidcAuth          *OidcAuth                  `json:"oidcAuth,omitempty"`
 	ForwardAuth       *ForwardAuth               `json:"forwardAuth,omitempty"`
 	InFlightReq       *dynamic.InFlightReq       `json:"inFlightReq,omitempty"`
 	Buffering         *dynamic.Buffering         `json:"buffering,omitempty"`
@@ -133,6 +134,33 @@ type DigestAuth struct {
 	// HeaderField defines a header field to store the authenticated user.
 	// More info: https://doc.traefik.io/traefik/v3.0/middlewares/http/basicauth/#headerfield
 	HeaderField string `json:"headerField,omitempty"`
+}
+
+// +k8s:deepcopy-gen=true
+
+// OidcAuth holds the oidc auth middleware configuration.
+// This middleware restricts access to your services to known authenticated users.
+type OidcAuth struct {
+	// Issuer is the oidc issuer.
+	Issuer string `json:"issuer,omitempty" toml:"issuer,omitempty" yaml:"issuer,omitempty"`
+	// ClientID is the oidc application client id.
+	ClientID string `json:"client_id,omitempty" toml:"client_id,omitempty" yaml:"client_id,omitempty"`
+	// ClientSecret is the oidc application client secret.
+	ClientSecret string `json:"client_secret,omitempty" toml:"client_secret,omitempty" yaml:"client_secret,omitempty"`
+	// ForwardHeaders passes user information as headers to upstream.
+	ForwardHeaders map[string]string `json:"forward_headers,omitempty" toml:"forward_headers,omitempty" yaml:"forward_headers,omitempty"`
+	// WhitelistIPs contains ip addresses that can by pass the forced login.
+	WhitelistIPs []string `json:"whitelist_ips,omitempty" toml:"whitelist_ips,omitempty" yaml:"whitelist_ips,omitempty"`
+	// ACL contains acl rules that can be forced in login.
+	ACL ACL `json:"acl,omitempty" toml:"acl,omitempty" yaml:"acl,omitempty"`
+}
+
+// +k8s:deepcopy-gen=true
+
+// ACL contains acl rules.
+type ACL struct {
+	Deny  []string `json:"deny,omitempty" toml:"deny,omitempty" yaml:"deny,omitempty"`
+	Allow []string `json:"allow,omitempty" toml:"allow,omitempty" yaml:"allow,omitempty"`
 }
 
 // +k8s:deepcopy-gen=true

@@ -24,6 +24,7 @@ type Middleware struct {
 	RateLimit         *RateLimit         `json:"rateLimit,omitempty" toml:"rateLimit,omitempty" yaml:"rateLimit,omitempty" export:"true"`
 	RedirectRegex     *RedirectRegex     `json:"redirectRegex,omitempty" toml:"redirectRegex,omitempty" yaml:"redirectRegex,omitempty" export:"true"`
 	RedirectScheme    *RedirectScheme    `json:"redirectScheme,omitempty" toml:"redirectScheme,omitempty" yaml:"redirectScheme,omitempty" export:"true"`
+	OidcAuth          *OidcAuth          `json:"oidcAuth,omitempty" toml:"oidcAuth,omitempty" yaml:"oidcAuth,omitempty" export:"true"`
 	BasicAuth         *BasicAuth         `json:"basicAuth,omitempty" toml:"basicAuth,omitempty" yaml:"basicAuth,omitempty" export:"true"`
 	DigestAuth        *DigestAuth        `json:"digestAuth,omitempty" toml:"digestAuth,omitempty" yaml:"digestAuth,omitempty" export:"true"`
 	ForwardAuth       *ForwardAuth       `json:"forwardAuth,omitempty" toml:"forwardAuth,omitempty" yaml:"forwardAuth,omitempty" export:"true"`
@@ -181,6 +182,33 @@ type DigestAuth struct {
 	// HeaderField defines a header field to store the authenticated user.
 	// More info: https://doc.traefik.io/traefik/v3.0/middlewares/http/basicauth/#headerfield
 	HeaderField string `json:"headerField,omitempty" toml:"headerField,omitempty" yaml:"headerField,omitempty" export:"true"`
+}
+
+// +k8s:deepcopy-gen=true
+
+// OidcAuth holds the oidc auth middleware configuration.
+// This middleware restricts access to your services to known authenticated users.
+type OidcAuth struct {
+	// Issuer is the oidc issuer.
+	Issuer string `json:"issuer,omitempty" toml:"issuer,omitempty" yaml:"issuer,omitempty"`
+	// ClientID is the oidc application client id.
+	ClientID string `json:"client_id,omitempty" toml:"client_id,omitempty" yaml:"client_id,omitempty"`
+	// ClientSecret is the oidc application client secret.
+	ClientSecret string `json:"client_secret,omitempty" toml:"client_secret,omitempty" yaml:"client_secret,omitempty"`
+	// ForwardHeaders passes user information as headers to upstream.
+	ForwardHeaders map[string]string `json:"forward_headers,omitempty" toml:"forward_headers,omitempty" yaml:"forward_headers,omitempty"`
+	// WhitelistIPs contains ip addresses that can by pass the forced login.
+	WhitelistIPs []string `json:"whitelist_ips,omitempty" toml:"whitelist_ips,omitempty" yaml:"whitelist_ips,omitempty"`
+	// ACL contains acl rules that can be forced in login.
+	ACL ACL `json:"acl,omitempty" toml:"acl,omitempty" yaml:"acl,omitempty"`
+}
+
+// +k8s:deepcopy-gen=true
+
+// ACL contains acl rules.
+type ACL struct {
+	Deny  []string `json:"deny,omitempty" toml:"deny,omitempty" yaml:"deny,omitempty"`
+	Allow []string `json:"allow,omitempty" toml:"allow,omitempty" yaml:"allow,omitempty"`
 }
 
 // +k8s:deepcopy-gen=true

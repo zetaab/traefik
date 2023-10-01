@@ -206,6 +206,16 @@ func (b *Builder) buildConstructor(ctx context.Context, middlewareName string) (
 		}
 	}
 
+	// OidcAuth
+	if config.OidcAuth != nil {
+		if middleware != nil {
+			return nil, badConf
+		}
+		middleware = func(next http.Handler) (http.Handler, error) {
+			return auth.NewOidc(ctx, next, *config.OidcAuth, middlewareName)
+		}
+	}
+
 	// ForwardAuth
 	if config.ForwardAuth != nil {
 		if middleware != nil {
